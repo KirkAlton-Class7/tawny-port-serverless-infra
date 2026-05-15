@@ -1,7 +1,6 @@
 // Node.js Lambda handler for public barrel endpoint
 exports.handler = async (event) => {
-    // Log incoming request for debugging
-    console.log("Incoming event:", JSON.stringify(event));
+    console.log("node-barrel request received");
 
     // Extract 'name' query parameter with fallback
     const name = event.queryStringParameters?.name || "Unknown";

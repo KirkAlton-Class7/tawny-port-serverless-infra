@@ -34,17 +34,17 @@ def lambda_handler(event, context):
         try:
             resp = table.get_item(Key={'sessionId': session_id})
             if 'Item' in resp:
-                print(f"Found session {session_id} to delete")
+                print("Found session to delete")
                 table.delete_item(Key={'sessionId': session_id})
                 verify = table.get_item(Key={'sessionId': session_id})
                 if 'Item' not in verify:
-                    print(f"Session {session_id} successfully deleted")
+                    print("Session successfully deleted")
                 else:
-                    print(f"WARNING: Session {session_id} still exists after delete")
+                    print("WARNING: Session still exists after delete")
             else:
-                print(f"Session {session_id} not found in DynamoDB")
+                print("Session not found in DynamoDB")
         except Exception as e:
-            print(f"Failed to delete session {session_id}: {e}")
+            print(f"Failed to delete session: {e}")
     else:
         print("No sessionId cookie found – nothing to delete")
 

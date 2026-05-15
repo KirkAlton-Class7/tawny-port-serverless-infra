@@ -4,8 +4,7 @@ import urllib.parse
 import secrets
 
 def lambda_handler(event, context):
-    # Log full request for debugging (PII may be present)
-    print("Incoming event:", json.dumps(event))
+    print("sommelier request received")
 
     # Environment configuration
     CLIENT_ID = os.environ.get("CLIENT_ID")

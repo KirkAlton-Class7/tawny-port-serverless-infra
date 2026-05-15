@@ -3,8 +3,7 @@ from datetime import datetime
 
 # Python Lambda handler for public cask endpoint
 def lambda_handler(event, context):
-    # Log incoming request for debugging
-    print("Incoming event:", json.dumps(event))
+    print("python-cask request received")
 
     # Extract 'name' query parameter with fallback
     name = event.get("queryStringParameters", {}).get("name", "Unknown")

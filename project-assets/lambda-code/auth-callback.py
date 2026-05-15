@@ -57,7 +57,7 @@ def lambda_handler(event, context):
             break
 
     if not expected_csrf or csrf_from_cognito != expected_csrf:
-        print(f"CSRF mismatch: expected={expected_csrf}, got={csrf_from_cognito}")
+        print("CSRF mismatch during Cognito callback")
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'text/html'},
