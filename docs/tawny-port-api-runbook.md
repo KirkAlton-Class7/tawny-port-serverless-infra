@@ -135,26 +135,8 @@ The full request path is small on purpose: the user enters through Table, authen
 
 ```mermaid
 flowchart TD
-    dev["Developer / internal automation"] --> auth0["Auth0 token endpoint"]
-    auth0 --> m2mToken["M2M access token"]
-    m2mToken --> cellarRoute["API Gateway /prod/cellar/*"]
-    cellarRoute --> cellarLambda["python-cask or node-barrel"]
 
-    browser["Browser user"] --> sommelier["/prod/table/sommelier"]
-    sommelier --> cognitoLogin["Cognito Hosted UI /login"]
-    cognitoLogin --> callback["/prod/table/auth/callback"]
-    callback --> tokenExchange["Cognito /oauth2/token"]
-    callback --> sessions["DynamoDB tawny-port-sessions"]
-    callback --> cookie["HttpOnly sessionId cookie"]
-    cookie --> pythonSipper["/prod/chalice/python-sipper"]
-    cookie --> nodeSipper["/prod/chalice/node-sipper"]
-    pythonSipper --> sessions
-    nodeSipper --> sessions
-
-    browser --> logout["/prod/table/auth/logout"]
-    logout --> sessions
-    logout --> cognitoLogout["Cognito /logout"]
-    cognitoLogout --> sommelier
+BLOG["<b>DIAGRAM PLACEHOLDER</b>"]
 ```
 
 ### Flow Summary
