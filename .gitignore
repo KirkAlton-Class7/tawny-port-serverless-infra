@@ -1,0 +1,140 @@
+# ───────────────────────────────
+# Runtime Logs
+# ───────────────────────────────
+
+# Logs
+*.log
+
+# Crash logs
+crash.*
+
+# ───────────────────────────────
+# Secrets
+# ───────────────────────────────
+
+Secrets
+.env
+*.pem
+
+# ───────────────────────────────
+# JSON Secrets
+# ───────────────────────────────
+# Use consistent naming conventions
+# for JSON secrets
+
+# GCP service account keys
+# Primary naming convention: gcp-sa-<purpose>-<project>.json
+**/gcp-sa-*.json
+
+# Fallback patterns for non-standard naming
+*service-account*.json
+*credentials*.json
+
+
+# ───────────────────────────────
+# Packages & Archives
+# ───────────────────────────────
+
+*.zip
+*.rpm
+rpm_packages/
+
+
+# ───────────────────────────────
+# Python
+# ───────────────────────────────
+
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+.venv/
+venv/
+env/
+
+*.egg-info/
+dist/
+build/
+
+
+# ───────────────────────────────
+# Jupyter
+# ───────────────────────────────
+
+**/.ipynb_checkpoints
+.jupyter/
+python_sandbox.ipynb
+sandbox.ipynb
+
+
+# ───────────────────────────────
+# IDE / Editor
+# ───────────────────────────────
+
+.DS_Store
+
+.idea/*
+!.idea/*.iml
+!.idea/vcs.xml
+!.idea/modules.xml
+
+# ───────────────────────────────
+# Editor swap / temp files
+# ───────────────────────────────
+*.swp
+*.swo
+*~
+
+# ───────────────────────────────
+# Terraform
+# ───────────────────────────────
+
+# Terraform working directories created by `terraform init`
+.terraform/
+
+# Terraform state files (may contain sensitive data)
+*.tfstate
+*.tfstate.*
+
+# Terraform variable files (often contain secrets or environment-specific values)
+*.tfvars
+*.tfvars.json
+*.tfvars.local
+
+# Terraform lock files
+# Note: some teams commit this to lock provider versions
+.terraform.lock.hcl
+
+# Local override files (used for local experimentation)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform lock info file (transient)
+.terraform.tfstate.lock.info
+
+# Terraform plan outputs (binary, environment-specific)
+*.tfplan
+
+# Terraform CLI configuration files
+.terraformrc
+terraform.rc
+
+# ───────────────────────────────
+# Terraform Rendered Artifacts
+# ───────────────────────────────
+# Ignore generated artifacts in rendered/.
+# The .gitkeep file preserves the directory so Terraform
+# local_file outputs have a valid path.
+
+rendered/*
+!rendered/.gitkeep
+
+# ───────────────────────────────
+# Miscellaneous
+# ───────────────────────────────
+
+backup/
