@@ -1,6 +1,6 @@
 # Tawny Port Architecture Temp
 
-Scratch space for Ttmporary architecture diagrams.
+Scratch space for temporary architecture diagrams.
 
 ## Browser Authentication Flow
 

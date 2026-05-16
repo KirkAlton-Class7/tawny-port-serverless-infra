@@ -24,8 +24,8 @@ Keep these files close while building. The Lambda source, brand assets, architec
 | Reference | Purpose |
 | --- | --- |
 | [`project-assets/lambda-code/`](../project-assets/lambda-code/) | Lambda source files used by the console deployment |
-| [`project-assets/tawny-port-brand/`](../project-assets/tawny-port-brand/) | Cognito managed login branding assets |
-| [`project-assets/tawny-port-brand/brand-identity.md`](../project-assets/tawny-port-brand/brand-identity.md) | Tawny Port color and type quick sheet |
+| [`shared/tawny-port-brand/`](../../shared/tawny-port-brand/) | Shared Cognito managed login branding assets |
+| [`shared/tawny-port-brand/brand-identity.md`](../../shared/tawny-port-brand/brand-identity.md) | Tawny Port color and type quick sheet |
 | [`docs/architecture.md`](./architecture.md) | Architecture diagrams and request-flow reference |
 | [`docs/tawny-port-api-runbook.md`](./tawny-port-api-runbook.md) | Primary operational runbook |
 
@@ -439,8 +439,8 @@ Reference links:
 
 Apply the Tawny Port visual system from:
 
-- [`project-assets/tawny-port-brand/`](../project-assets/tawny-port-brand/)
-- [`project-assets/tawny-port-brand/brand-identity.md`](../project-assets/tawny-port-brand/brand-identity.md)
+- [`shared/tawny-port-brand/`](../../shared/tawny-port-brand/)
+- [`shared/tawny-port-brand/brand-identity.md`](../../shared/tawny-port-brand/brand-identity.md)
 
 > [!NOTE]
 > Select the appropriate asset version that meets AWS Cognito file size requirements before uploading.

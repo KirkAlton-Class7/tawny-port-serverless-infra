@@ -1,143 +1,92 @@
-# Tawny Port API
+# Tawny Port Serverless Infrastructure Demo
 
 Serverless AWS infrastructure demo with **API Gateway**, **Lambda**, **Cognito Hosted UI**, **Auth0 M2M auth**, and **DynamoDB-backed sessions**.
 
-It separates internal API access from browser login so each route family has the right trust boundary:
-
-* **Cellar** routes use Auth0 machine-to-machine tokens for developer and service access.
-* **Table** routes handle the public Sommelier, Cognito callback, and logout path.
-* **Chalice** routes use an HttpOnly `sessionId` cookie backed by DynamoDB.
+Tawny Port is built as two parallel implementation tracks. Both demonstrate the same route-domain architecture and browser authentication model, but they differ in the API Gateway layer and Auth0 authorization strategy.
 
 ```text
 From the Cellar, to the Table, through the Sommelier, into the Chalice.
 ```
 
----
+## Quick Navigation
 
-## Documentation
+| Implementation | Start here | Use when |
+| --- | --- | --- |
+| **HTTPS Version** | [HTTPS README](HTTPS/README.md) | You want the API Gateway HTTP API implementation with a built-in JWT authorizer |
+| **REST Version** | [REST README](REST/README.md) | You want the API Gateway REST API implementation with a Lambda TOKEN authorizer |
 
-Start with the architecture below, then use the full runbook when you are ready to build the AWS resources.
+## Platform Overview
 
-| Document | Use |
-| --- | --- |
-| [`docs/tawny-port-api-runbook.md`](docs/tawny-port-api-runbook.md) | Full console implementation runbook from DynamoDB setup through validation |
-| [`project-assets/tawny-port-brand/brand-identity.md`](project-assets/tawny-port-brand/brand-identity.md) | Apply the Cognito managed login color and type system |
+The project separates API access by route domain instead of mixing every trust model into one route family.
 
-## Project Assets
+| Domain | Route pattern | Primary user | Authorization model |
+| --- | --- | --- | --- |
+| Cellar | `/prod/cellar/*` | Developer or service client | Auth0 M2M bearer token |
+| Table | `/prod/table/*` | Browser user before app session | Public route plus Cognito Hosted UI redirect |
+| Chalice | `/prod/chalice/*` | Browser user after login | Lambda validates `sessionId` against DynamoDB |
 
-Console deployment source files are kept under `project-assets/`.
+The browser flow starts at the Table Sommelier, redirects to Cognito Hosted UI, returns through the callback, creates a short-lived DynamoDB session, and then enters Chalice through a secure HttpOnly cookie.
 
-| Path | Purpose |
-| --- | --- |
-| [`project-assets/lambda-code/`](project-assets/lambda-code/) | Lambda source files for the console implementation |
-| [`project-assets/tawny-port-brand/`](project-assets/tawny-port-brand/) | Cognito managed login branding assets |
+## HTTPS vs REST
 
-## Architecture
+Both versions preserve the same project model. The difference is how API Gateway is configured.
 
-Tawny Port is built around route families with different trust boundaries. API Gateway carries the request, Lambda owns the work, Cognito handles browser sign-in, Auth0 protects internal API access, and DynamoDB keeps the short-lived browser session state.
-
-Shows:
-
-* Browser login and callback flow
-* Local session validation through DynamoDB
-* Cognito logout behavior
-* Auth0 machine-to-machine access for Cellar
-* Infrastructure boundaries that should stay intact as the project grows
+| Area | HTTPS Version | REST Version |
+| --- | --- | --- |
+| API Gateway type | HTTP API | REST API |
+| Cellar authorization | Built-in JWT authorizer | Lambda TOKEN authorizer named `tawny-port-auth0-jwt` |
+| Lambda event shape | HTTP API style events, including `event.cookies` | REST API Lambda proxy events, primarily `headers.Cookie` |
+| Multiple cookies | HTTP API response cookie handling | REST `multiValueHeaders` for multiple `Set-Cookie` headers |
+| Auth0 authorizer code | No custom authorizer Lambda required | Includes `auth0-jwt-authorizer.py` and packaged ZIP |
+| Best fit | Lean HTTP API build | Console-heavy REST API learning and authorizer control |
 
 > [!IMPORTANT]
-> Examples are sanitized. Replace deployment-specific values such as API IDs, AWS regions, Cognito domains, Auth0 tenants, account IDs, and client IDs when deploying.
+> Keep implementation URLs separated. Do not mix HTTP API and REST API invoke URLs inside Cognito callback URLs, Lambda environment variables, cookie domains, or logout URLs.
 
-### Route Domains
+## Repository Structure
 
-The route domain is part of the architecture, not just naming:
-
-| Domain | Route pattern | Authentication model | Purpose |
-| --- | --- | --- | --- |
-| Cellar | `/prod/cellar/*` | Auth0 JWT authorizer on API Gateway | Internal developer and machine-to-machine API access |
-| Table | `/prod/table/*` | Public API Gateway routes plus Cognito Hosted UI | Browser Sommelier, OAuth callback, logout |
-| Chalice | `/prod/chalice/*` | Lambda validates `sessionId` cookie against DynamoDB | Authenticated user-facing sipper routes |
-
-> [!WARNING]
-> Keep the route domains separate when building. Auth0 belongs on Cellar routes only; Table and Chalice use the Cognito callback plus DynamoDB-backed session flow.
-
-### Browser Authentication Flow
-
-The browser flow starts at Table, leaves for Cognito, returns through the callback, and enters Chalice only after a DynamoDB session exists.
-
-```mermaid
-flowchart TD
-
-BLOG["<b>DIAGRAM PLACEHOLDER</b>"]
+```text
+repo-root/
+├── HTTPS/
+│   ├── README.md
+│   ├── docs/
+│   └── project-assets/lambda-code/
+├── REST/
+│   ├── README.md
+│   ├── docs/
+│   └── project-assets/lambda-code/
+└── shared/
+    └── tawny-port-brand/
 ```
 
-#### Flow Notes
+## Shared Assets
 
-* `sommelier` generates Cognito login links with `response_type=code`, `redirect_uri`, `scope`, and a composite `state` value.
-* `oauth_state` is an HttpOnly CSRF cookie set before the browser leaves for Cognito.
-* Cognito redirects back to `/prod/table/auth/callback` with `code` and `state`.
-* `auth-callback` validates `state`, exchanges the authorization code at Cognito `/oauth2/token`, creates a DynamoDB session, and sets an HttpOnly `sessionId` cookie.
-* Sipper Lambdas do not receive Cognito tokens from the browser. They authorize by reading `sessionId` and validating it against `tawny-port-sessions`.
+Branding assets are shared across both implementations:
 
-### Logout Flow
+[`shared/tawny-port-brand/`](shared/tawny-port-brand/)
 
-Logout clears the local session before sending the browser through Cognito logout. That keeps the application session and the Cognito hosted session from drifting apart.
+Use the shared brand directory for Cognito Managed Login assets, favicons, logos, background images, and the brand color/type quick sheet. Each implementation links back to this shared location rather than keeping separate branding source paths.
 
-```mermaid
-flowchart TD
+## Intended Audience
 
-BLOG["<b>DIAGRAM PLACEHOLDER</b>"]
-```
+This repo is built for:
 
-#### Logout Notes
+* Developers learning serverless authentication patterns
+* Cloud and DevOps learners comparing HTTP API and REST API behavior
+* Architects reviewing route-domain trust boundaries
+* Builders who want a console-based AWS implementation they can reproduce end to end
 
-* The logout Lambda deletes the local DynamoDB session first.
-* The Lambda clears the local `sessionId` cookie.
-* The browser is redirected through Cognito `/logout` with `client_id`, `logout_uri`, and `state`.
-* Cognito redirects back to the Table Sommelier route.
+## Implementation Summary
 
-### Cellar Machine-To-Machine Flow
+Tawny Port demonstrates a practical identity split:
 
-Cellar does not use browser cookies or Cognito redirects. A developer or service requests an Auth0 access token and presents it directly to API Gateway.
+* Auth0 handles machine-to-machine access for internal Cellar routes.
+* Cognito Hosted UI handles browser sign-in.
+* Lambda performs server-side callback handling, session creation, and route logic.
+* DynamoDB stores short-lived session records keyed by `sessionId`.
+* HttpOnly cookies keep Cognito tokens out of browser-facing application routes.
 
-```mermaid
-flowchart TD
+Start with the implementation that matches your API Gateway target:
 
-BLOG["<b>DIAGRAM PLACEHOLDER</b>"]
-```
-
-#### Cellar Notes
-
-* Auth0 is only used for `/prod/cellar/*`.
-* API Gateway validates Auth0 JWTs with the `tawny-port-auth0-jwt` authorizer.
-* Table and Chalice routes do not use the Auth0 authorizer.
-
-### Infrastructure Boundaries
-
-Use these boundaries as the guardrails when expanding the project.
-
-| Boundary | Standard pattern used |
-| --- | --- |
-| Browser to API | API Gateway HTTP API route invokes Lambda proxy integrations |
-| Browser to Cognito | Cognito Hosted UI authorization-code redirect flow |
-| Callback to Cognito | Server-side confidential client token exchange at `/oauth2/token` |
-| Browser session | HttpOnly `sessionId` cookie, not browser-exposed Cognito tokens |
-| Session persistence | DynamoDB table with `sessionId` partition key and `expiresAt` TTL |
-| Cellar authorization | API Gateway HTTP API JWT authorizer using Auth0 issuer and audience |
-
-### Implementation Notes
-
-* The Lambda code uses API Gateway HTTP API style events, including `event.cookies` support.
-* For multiple cookies in an HTTP API response, prefer the HTTP API response `cookies` array or another supported multi-cookie mechanism. A single response headers map cannot safely represent two separate `Set-Cookie` headers with the same key.
-* Keep `CLIENT_SECRET` only in `auth-callback` configuration or a managed secret store.
-* Keep Cognito callback and logout routes public at API Gateway. Their protections are state validation, Cognito code exchange, cookie attributes, and DynamoDB session handling.
-
-## Full Implementation Runbook
-
-Use **[Tawny Port API Runbook](docs/tawny-port-api-runbook.md)** for the complete AWS Console build:
-
-* DynamoDB session table setup
-* Auth0 machine-to-machine configuration
-* Cognito Hosted UI and app client setup
-* Lambda creation, handlers, permissions, and environment variables
-* API Gateway routes, integrations, and authorizers
-* Testing, troubleshooting, and official reference links
+* [HTTPS Version](HTTPS/README.md)
+* [REST Version](REST/README.md)
