@@ -1,8 +1,7 @@
 # Tawny Port API - REST Version
 
-**REST Version:** API Gateway REST API implementation of the Tawny Port serverless infrastructure demo.
-
-Looking for the HTTPS / HTTP API implementation instead? Start here: [HTTPS Version](../HTTPS/README.md).
+REST implementation of the Tawny Port serverless infrastructure demo.<br>
+View the HTTPS version [here](../HTTPS/README.md) ifyou prefer that implementation.<br><br>
 
 Tawny Port separates browser login from internal API access so each route family has the right trust boundary:
 
@@ -89,9 +88,9 @@ Implementation details:
 * Table and Chalice routes do not use the Auth0 authorizer.
 * `CLIENT_SECRET` belongs only in `auth-callback` configuration or a managed secret store.
 
-## Build From Here
+## Get Started
 
-Use the [Full Runbook](docs/tawny-port-api-runbook.md) for the complete AWS Console build:
+Use the [Tawny Port - REST Runbook](docs/tawny-port-api-runbook.md) to get started with:
 
 * DynamoDB session table setup
 * Auth0 machine-to-machine configuration

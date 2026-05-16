@@ -8,12 +8,20 @@ Tawny Port is built as two parallel implementation tracks. Both demonstrate the 
 From the Cellar, to the Table, through the Sommelier, into the Chalice.
 ```
 
-## Quick Navigation
+## Implementation
 
-| Implementation | Start here | Use when |
-| --- | --- | --- |
-| **HTTPS Version** | [HTTPS README](HTTPS/README.md) | You want the API Gateway HTTP API implementation with a built-in JWT authorizer |
-| **REST Version** | [REST README](REST/README.md) | You want the API Gateway REST API implementation with a Lambda TOKEN authorizer |
+Tawny Port demonstrates a practical identity split:
+
+* Auth0 handles machine-to-machine access for internal Cellar routes.
+* Cognito Hosted UI handles browser sign-in.
+* Lambda performs server-side callback handling, session creation, and route logic.
+* DynamoDB stores short-lived session records keyed by `sessionId`.
+* HttpOnly cookies keep Cognito tokens out of browser-facing application routes.
+
+Start with the implementation that matches your API Gateway target or authorization strategy:
+
+* [HTTPS Version](HTTPS/README.md) (API Gateway built-in JWT authorizer)
+* [REST Version](REST/README.md) (Lambda TOKEN authorizer)
 
 ## Platform Overview
 
@@ -66,27 +74,3 @@ Branding assets are shared across both implementations:
 [`shared/tawny-port-brand/`](shared/tawny-port-brand/)
 
 Use the shared brand directory for Cognito Managed Login assets, favicons, logos, background images, and the brand color/type quick sheet. Each implementation links back to this shared location rather than keeping separate branding source paths.
-
-## Intended Audience
-
-This repo is built for:
-
-* Developers learning serverless authentication patterns
-* Cloud and DevOps learners comparing HTTP API and REST API behavior
-* Architects reviewing route-domain trust boundaries
-* Builders who want a console-based AWS implementation they can reproduce end to end
-
-## Implementation Summary
-
-Tawny Port demonstrates a practical identity split:
-
-* Auth0 handles machine-to-machine access for internal Cellar routes.
-* Cognito Hosted UI handles browser sign-in.
-* Lambda performs server-side callback handling, session creation, and route logic.
-* DynamoDB stores short-lived session records keyed by `sessionId`.
-* HttpOnly cookies keep Cognito tokens out of browser-facing application routes.
-
-Start with the implementation that matches your API Gateway target:
-
-* [HTTPS Version](HTTPS/README.md)
-* [REST Version](REST/README.md)
