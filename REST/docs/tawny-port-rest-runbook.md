@@ -260,24 +260,17 @@ Replace per deployment:
 - Auth0 API audience.
 - M2M application credentials.
 
-### Auth0 Developer Login Flow
+### Auth0 Validation And Testing Workflow
 
-The working pattern from the original implementation notes:
+Validate Auth0 before moving into the Cognito browser flow. This confirms the internal Cellar path works independently from Table and Chalice.
 
 ```text
-Developer CLI / service
-    |
-    v
-Auth0 /oauth/token
-    |
-    v
-Access token JWT
-    |
-    v
-/prod/cellar/*
+Auth0 -> Cellar -> Protected Internal Validation
+Cognito -> Table -> Consumer Login
+Chalice -> Session/User Experience
 ```
 
-Set the local variables first:
+Set local shell variables for the deployment:
 
 ```bash
 export AUTH0_DOMAIN="https://<AUTH0_TENANT>.<AUTH0_REGION>.auth0.com"
@@ -286,7 +279,43 @@ export AUTH0_CLIENT_SECRET="<AUTH0_M2M_CLIENT_SECRET>"
 export AUTH0_AUDIENCE="<AUTH0_AUDIENCE>"
 ```
 
-Request a token:
+Request an Auth0 access token:
+
+```bash
+curl --request POST \
+  --url "$AUTH0_DOMAIN/oauth/token" \
+  --header 'content-type: application/json' \
+  --data '{
+    "client_id":"'"$AUTH0_CLIENT_ID"'",
+    "client_secret":"'"$AUTH0_CLIENT_SECRET"'",
+    "audience":"'"$AUTH0_AUDIENCE"'",
+    "grant_type":"client_credentials"
+}'
+```
+
+If you are testing without shell variables, use the direct placeholder form:
+
+```bash
+curl --request POST \
+  --url https://YOUR_AUTH0_DOMAIN/oauth/token \
+  --header 'content-type: application/json' \
+  --data '{
+    "client_id":"YOUR_CLIENT_ID",
+    "client_secret":"YOUR_CLIENT_SECRET",
+    "audience":"YOUR_API_IDENTIFIER",
+    "grant_type":"client_credentials"
+}'
+```
+
+The response includes `access_token`, `scope`, `expires_in`, and `token_type`.
+
+Export the token for reuse:
+
+```bash
+export AUTH0_TOKEN="PASTE_TOKEN_HERE"
+```
+
+For repeatable CLI testing, extract the token directly with `jq`:
 
 ```bash
 export AUTH0_TOKEN=$(curl -s --request POST \
@@ -296,7 +325,7 @@ export AUTH0_TOKEN=$(curl -s --request POST \
   | jq -r '.access_token')
 ```
 
-Validate that the value is a JWT, not raw JSON:
+Validate that the exported value is a JWT, not raw JSON:
 
 ```bash
 echo "$AUTH0_TOKEN" | head -c 20
@@ -313,18 +342,46 @@ eyJ...
 > [!WARNING]
 > A common failure is storing the full JSON response, such as `{"access_token":"..."}`, instead of the raw JWT. API Gateway then reports token parsing errors such as `invalid_token` or base64 decode failures. Use `jq -r '.access_token'` to extract only the token.
 
-Test a Cellar route:
+Test the protected Python Cellar route with the bearer token:
 
 ```bash
 curl -H "Authorization: Bearer $AUTH0_TOKEN" \
-"https://<API_ID>.execute-api.<AWS_REGION>.amazonaws.com/prod/cellar/python-cask?name=Theo"
+"https://<API_ID>.execute-api.<AWS_REGION>.amazonaws.com/prod/cellar/python-cask?name=AuthTester"
+```
+
+Test the Node Cellar route the same way:
+
+```bash
+curl -H "Authorization: Bearer $AUTH0_TOKEN" \
+"https://<API_ID>.execute-api.<AWS_REGION>.amazonaws.com/prod/cellar/node-barrel?name=AuthTester"
 ```
 
 Expected result:
 
-```text
-200 OK
+- API Gateway accepts the bearer token.
+- The Cellar Lambda returns a successful response.
+- CloudWatch logs show the Cellar Lambda invocation.
+
+Test the protected route without a token:
+
+```bash
+curl -i "https://<API_ID>.execute-api.<AWS_REGION>.amazonaws.com/prod/cellar/python-cask"
 ```
+
+Expected result:
+
+- API Gateway returns `401` or `403`.
+- The Cellar Lambda should not run for a missing or rejected token.
+
+Common Auth0 validation failures:
+
+| Failure | Likely cause | Fix |
+| --- | --- | --- |
+| Missing token | `Authorization` header is absent or empty | Send `Authorization: Bearer $AUTH0_TOKEN` |
+| Invalid audience | Auth0 API identifier does not match the authorizer audience | Set `AUTH0_AUDIENCE` to the API identifier used by the API Gateway authorizer |
+| Wrong issuer | Auth0 domain or trailing slash differs from the authorizer issuer | Match `https://<AUTH0_TENANT>.<AUTH0_REGION>.auth0.com/` exactly |
+| Expired token | `exp` is older than the current time | Request a fresh token and re-export `AUTH0_TOKEN` |
+| Incorrect scopes | API requires scopes that the M2M app was not granted | Authorize the M2M app for the API scopes, then request a new token |
 
 ### Auth0 Security Notes
 
@@ -945,10 +1002,12 @@ Cognito logout endpoint documentation:
 
 ### 9.5 Test Cellar Auth0 Routes
 
+Use the `AUTH0_TOKEN` exported in [Auth0 Validation And Testing Workflow](#auth0-validation-and-testing-workflow). This smoke test confirms the deployed Cellar routes still reject anonymous traffic and accept a valid M2M bearer token.
+
 Call Cellar without an Auth0 token:
 
-```text
-GET /prod/cellar/python-cask
+```bash
+curl -i "https://<API_ID>.execute-api.<AWS_REGION>.amazonaws.com/prod/cellar/python-cask"
 ```
 
 Expected result:
@@ -957,14 +1016,23 @@ Expected result:
 
 Call Cellar with a valid Auth0 M2M token:
 
-```text
-Authorization: Bearer <AUTH0_ACCESS_TOKEN>
+```bash
+curl -i -H "Authorization: Bearer $AUTH0_TOKEN" \
+"https://<API_ID>.execute-api.<AWS_REGION>.amazonaws.com/prod/cellar/python-cask"
+```
+
+Repeat for the Node Cellar route:
+
+```bash
+curl -i -H "Authorization: Bearer $AUTH0_TOKEN" \
+"https://<API_ID>.execute-api.<AWS_REGION>.amazonaws.com/prod/cellar/node-barrel"
 ```
 
 Expected result:
 
 - API Gateway authorizer accepts the token.
 - The Cellar Lambda returns a successful response.
+- CloudWatch logs confirm the Cellar function was invoked.
 
 ## 10. Troubleshooting
 
@@ -1038,6 +1106,8 @@ Use these links when you want to validate behavior against the official docs or 
 - [ ] `auth0-jwt-authorizer` is packaged with `PyJWT[crypto]` or a compatible Lambda layer.
 - [ ] API Gateway routes match the route table in this runbook.
 - [ ] Auth0 Lambda TOKEN authorizer is attached only to Cellar routes.
+- [ ] Auth0 M2M token is acquired and exported as `AUTH0_TOKEN`.
+- [ ] Cellar routes reject missing tokens and accept `Authorization: Bearer $AUTH0_TOKEN`.
 - [ ] Table routes are public.
 - [ ] Chalice routes rely on Lambda session validation.
 - [ ] Browser login creates a DynamoDB session.

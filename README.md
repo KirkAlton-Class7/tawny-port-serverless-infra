@@ -23,6 +23,14 @@ Start with the implementation that matches your API Gateway target or authorizat
 * [HTTPS Version](HTTPS/README.md) (API Gateway built-in JWT authorizer)
 * [REST Version](REST/README.md) (Lambda TOKEN authorizer)
 
+Both implementation runbooks include end-to-end verification for the two identity paths:
+
+* **Auth0 M2M:** token acquired, exported, passed as `Authorization: Bearer $AUTH0_TOKEN`, and validated against protected Cellar routes.
+* **Cognito user flow:** Hosted UI login, callback handling, DynamoDB session creation, and Chalice route validation.
+
+> [!IMPORTANT]
+> Auth0 validation is required for Cellar route testing. Cognito login validates Table and Chalice, but it does not authorize `/prod/cellar/*`.
+
 ## Platform Overview
 
 The project separates API access by route domain instead of mixing every trust model into one route family.

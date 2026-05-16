@@ -89,6 +89,3 @@ Click **Deploy** if prompted.
 | `No module named 'jwt'` | PyJWT was not packaged or layered | Upload the ZIP package or attach a layer with `PyJWT[crypto]` |
 | `cryptography` import error | Package was built for an incompatible platform | Rebuild on Amazon Linux or use a compatible Lambda layer |
 | `Unable to import module` | Handler file name does not match Lambda handler setting | Use `lambda_function.py` with `lambda_function.lambda_handler` |
-
-> [!WARNING]
-> If the ZIP was built on macOS, native `cryptography` files may not be compatible with the Lambda Linux runtime. If AWS reports a native library or `cryptography` import error, rebuild the package in an Amazon Linux-compatible environment or use a compatible Lambda layer.
