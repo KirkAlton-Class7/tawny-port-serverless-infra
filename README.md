@@ -1,4 +1,4 @@
-# Tawny Port Serverless Infrastructure Demo
+# Tawny Port Serverless Infrastructure
 
 Serverless AWS infrastructure demo with **API Gateway**, **Lambda**, **Cognito Hosted UI**, **Auth0 M2M auth**, and **DynamoDB-backed sessions**.
 
