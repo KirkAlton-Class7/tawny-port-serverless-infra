@@ -986,9 +986,8 @@ Master lessons from the original documentation:
 - Auth0 M2M is ideal for developer and internal API routes.
 - Naming architecture helps operators reason about access boundaries.
 
-## 12. Official Reference Map
+## 12. Reference Map
 
-Use these links when you want to validate behavior against the official docs or go deeper on a service area.
 
 | Topic | References |
 | --- | --- |
@@ -1000,8 +999,8 @@ Use these links when you want to validate behavior against the official docs or 
 | Cognito OAuth token exchange | [Token endpoint](https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html) |
 | Cognito branding | [Apply branding to managed login pages](https://docs.aws.amazon.com/cognito/latest/developerguide/managed-login-branding.html) |
 | Cognito logout | [Logout endpoint](https://docs.aws.amazon.com/cognito/latest/developerguide/logout-endpoint.html) |
-| Cognito direct auth study | [Authentication](https://docs.aws.amazon.com/cognito/latest/developerguide/authentication.html), [Authentication flow methods](https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-authentication-flow-methods.html), [InitiateAuth API](https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_InitiateAuth.html), [CLI initiate-auth](https://docs.aws.amazon.com/cli/latest/reference/cognito-idp/initiate-auth.html), [CLI respond-to-auth-challenge](https://docs.aws.amazon.com/cli/latest/reference/cognito-idp/respond-to-auth-challenge.html), [MFA](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-mfa.html) |
-| Secret hash and crypto study | [Computing secret hash values](https://docs.aws.amazon.com/cognito/latest/developerguide/signing-up-users-in-your-app.html#cognito-user-pools-computing-secret-hash), [AWS re:Post secret hash troubleshooting](https://repost.aws/knowledge-center/cognito-unable-to-verify-secret-hash), [Python hmac](https://docs.python.org/3/library/hmac.html), [Python hashlib](https://docs.python.org/3/library/hashlib.html), [Python base64](https://docs.python.org/3/library/base64.html), [JWT introduction](https://jwt.io/introduction) |
+| Cognito direct auth | [Authentication](https://docs.aws.amazon.com/cognito/latest/developerguide/authentication.html), [Authentication flow methods](https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-authentication-flow-methods.html), [InitiateAuth API](https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_InitiateAuth.html), [CLI initiate-auth](https://docs.aws.amazon.com/cli/latest/reference/cognito-idp/initiate-auth.html), [CLI respond-to-auth-challenge](https://docs.aws.amazon.com/cli/latest/reference/cognito-idp/respond-to-auth-challenge.html), [MFA](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-mfa.html) |
+| Secret hash and cryptography | [Computing secret hash values](https://docs.aws.amazon.com/cognito/latest/developerguide/signing-up-users-in-your-app.html#cognito-user-pools-computing-secret-hash), [AWS re:Post secret hash troubleshooting](https://repost.aws/knowledge-center/cognito-unable-to-verify-secret-hash), [Python hmac](https://docs.python.org/3/library/hmac.html), [Python hashlib](https://docs.python.org/3/library/hashlib.html), [Python base64](https://docs.python.org/3/library/base64.html), [JWT introduction](https://jwt.io/introduction) |
 | Auth0 M2M | [Auth0 Client Credentials Flow](https://auth0.com/docs/get-started/authentication-and-authorization-flow/client-credentials-flow), [Auth0 APIs](https://auth0.com/docs/get-started/apis) |
 | CLI parsing | [jq Manual](https://jqlang.github.io/jq/manual/) |
 
