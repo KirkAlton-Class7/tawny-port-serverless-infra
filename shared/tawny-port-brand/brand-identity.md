@@ -99,5 +99,5 @@ Use the implementation runbook that matches the API Gateway version you are buil
 
 | Implementation | Runbook |
 | --- | --- |
-| HTTPS Version | [`HTTPS/docs/tawny-port-api-runbook.md`](../../HTTPS/docs/tawny-port-api-runbook.md) |
-| REST Version | [`REST/docs/tawny-port-api-runbook.md`](../../REST/docs/tawny-port-api-runbook.md) |
+| HTTPS Version | [`HTTPS/docs/tawny-port-https-runbook.md`](../../HTTPS/docs/tawny-port-https-runbook.md) |
+| REST Version | [`REST/docs/tawny-port-rest-runbook.md`](../../REST/docs/tawny-port-rest-runbook.md) |

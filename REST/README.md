@@ -21,7 +21,7 @@ From the Cellar, to the Table, through the Sommelier, into the Chalice.
 | Document | Use |
 | --- | --- |
 | [Architecture](docs/architecture.md) | Request flow, route boundaries, and REST-specific implementation notes |
-| [Full Runbook](docs/tawny-port-api-runbook.md) | Console implementation guide from AWS setup through validation |
+| [Full Runbook](docs/tawny-port-rest-runbook.md) | Console implementation guide from AWS setup through validation |
 | [Lambda Packaging](project-assets/lambda-code/README.md) | Upload and package Lambda code, including the Auth0 authorizer ZIP |
 | [Shared Brand Identity](../shared/tawny-port-brand/brand-identity.md) | Cognito Managed Login color and type reference |
 | [HTTPS Version](../HTTPS/README.md) | Companion HTTP API implementation |
@@ -90,7 +90,7 @@ Implementation details:
 
 ## Get Started
 
-Use the [Tawny Port - REST Runbook](docs/tawny-port-api-runbook.md) to get started with:
+Use the [Tawny Port - REST Runbook](docs/tawny-port-rest-runbook.md) to get started with:
 
 * DynamoDB session table setup
 * Auth0 machine-to-machine configuration

@@ -27,7 +27,7 @@ Keep these files close while building. The Lambda source, brand assets, architec
 | [`shared/tawny-port-brand/`](../../shared/tawny-port-brand/) | Shared Cognito managed login branding assets |
 | [`shared/tawny-port-brand/brand-identity.md`](../../shared/tawny-port-brand/brand-identity.md) | Tawny Port color and type quick sheet |
 | [`docs/architecture.md`](./architecture.md) | Architecture diagrams and request-flow reference |
-| [`docs/tawny-port-api-runbook.md`](./tawny-port-api-runbook.md) | Primary operational runbook |
+| [`docs/tawny-port-rest-runbook.md`](./tawny-port-rest-runbook.md) | Primary operational runbook |
 
 ---
 
