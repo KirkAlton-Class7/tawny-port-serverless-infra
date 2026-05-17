@@ -28,6 +28,8 @@ Both implementation runbooks include end-to-end verification for the two identit
 * **Auth0 M2M:** token acquired, exported, passed as `Authorization: Bearer $AUTH0_TOKEN`, and validated against protected Cellar routes.
 * **Cognito user flow:** Hosted UI login, callback handling, DynamoDB session creation, and Chalice route validation.
 
+For a smaller CLI-only lab that explains Cognito `USER_AUTH`, `SELECT_CHALLENGE`, `SECRET_HASH`, MFA, and JWT validation without the full Tawny Port application, see the companion [Cognito CLI Auth Flow runbook](../cognito-cli-auth-flow/README.md).
+
 > [!IMPORTANT]
 > Auth0 validation is required for Cellar route testing. Cognito login validates Table and Chalice, but it does not authorize `/prod/cellar/*`.
 
@@ -49,6 +51,7 @@ Both versions preserve the same project model. The difference is how API Gateway
 
 | Area | HTTPS Version | REST Version |
 | --- | --- | --- |
+| API Gateway name | `tawny-port-https` | `tawny-port-rest` |
 | API Gateway type | HTTP API | REST API |
 | Cellar authorization | Built-in JWT authorizer | Lambda TOKEN authorizer named `tawny-port-auth0-jwt` |
 | Lambda event shape | HTTP API style events, including `event.cookies` | REST API Lambda proxy events, primarily `headers.Cookie` |

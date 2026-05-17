@@ -42,6 +42,12 @@ Console deployment source files for this implementation are kept under `REST/pro
 
 The REST version uses API Gateway **REST API** resources and methods with Lambda proxy integrations. Auth0-protected Cellar routes use a Lambda TOKEN authorizer because REST APIs do not use HTTP API JWT authorizers.
 
+| API Gateway field | Value |
+| --- | --- |
+| API name | `tawny-port-rest` |
+| API type | REST API |
+| Stage | `prod` |
+
 | Domain | Route pattern | Authentication model | Purpose |
 | --- | --- | --- | --- |
 | Cellar | `/prod/cellar/*` | API Gateway REST API Lambda TOKEN authorizer | Internal developer and machine-to-machine API access |
@@ -96,5 +102,6 @@ Use the [Tawny Port - REST Runbook](docs/tawny-port-rest-runbook.md) to get star
 * Auth0 machine-to-machine configuration
 * Cognito Hosted UI and app client setup
 * Lambda creation, handlers, permissions, and environment variables
+* API Gateway REST API named `tawny-port-rest`
 * API Gateway REST API resources, methods, integrations, and authorizers
 * Testing, troubleshooting, and official reference links

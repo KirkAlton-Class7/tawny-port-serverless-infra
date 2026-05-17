@@ -38,6 +38,12 @@ Console deployment source files for this implementation are kept under `HTTPS/pr
 
 The HTTPS version uses API Gateway **HTTP API** routes with Lambda integrations and a built-in JWT authorizer for Auth0-protected Cellar routes.
 
+| API Gateway field | Value |
+| --- | --- |
+| API name | `tawny-port-https` |
+| API type | HTTP API |
+| Stage | `prod` |
+
 | Domain | Route pattern | Authentication model | Purpose |
 | --- | --- | --- | --- |
 | Cellar | `/prod/cellar/*` | API Gateway HTTP API JWT authorizer using Auth0 issuer and audience | Internal developer and machine-to-machine API access |
@@ -91,5 +97,6 @@ Use the [Tawny Port - HTTPS Runbook](docs/tawny-port-https-runbook.md) to get st
 * Auth0 machine-to-machine configuration
 * Cognito Hosted UI and app client setup
 * Lambda creation, handlers, permissions, and environment variables
+* API Gateway HTTP API named `tawny-port-https`
 * API Gateway HTTP API routes, integrations, and authorizers
 * Testing, troubleshooting, and official reference links

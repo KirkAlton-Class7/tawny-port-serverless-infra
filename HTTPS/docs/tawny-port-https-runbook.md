@@ -28,6 +28,7 @@ Keep these files close while building. The Lambda source, brand assets, architec
 | [`shared/tawny-port-brand/brand-identity.md`](../../shared/tawny-port-brand/brand-identity.md) | Tawny Port color and type quick sheet |
 | [`docs/architecture.md`](./architecture.md) | Architecture diagrams and request-flow reference |
 | [`docs/tawny-port-https-runbook.md`](./tawny-port-https-runbook.md) | Primary operational runbook |
+| [`cognito-cli-auth-flow/README.md`](../../../cognito-cli-auth-flow/README.md) | Companion CLI lab for Cognito `USER_AUTH`, `SELECT_CHALLENGE`, `SECRET_HASH`, MFA, JWTs, and barebones API Gateway validation |
 
 ---
 
@@ -111,6 +112,7 @@ Start with these values before opening the AWS Console. The project names and ro
 | --- | --- | --- |
 | Project slug | `tawny-port` | No, unless renaming the project |
 | API stage | `prod` | Usually no |
+| API Gateway API name | `tawny-port-https` | No, unless renaming the implementation |
 | AWS region | `<AWS_REGION>` | Yes |
 | AWS account ID | `<AWS_ACCOUNT_ID>` | Yes |
 | API invoke base URL | `https://<API_ID>.execute-api.<AWS_REGION>.amazonaws.com/prod` | Yes |
@@ -234,6 +236,11 @@ Use Auth0 only for Cellar. These routes are for developer and service access, so
 | Signing algorithm | `RS256` |
 | M2M app purpose | Cellar developer/API access |
 
+Treat the Auth0 API identifier as the trust anchor for Cellar. The M2M application requests a token for that exact audience, and API Gateway validates the same audience before allowing `/cellar/*` traffic through.
+
+> [!WARNING]
+> Do not use the Auth0 Management API audience, such as `https://<AUTH0_TENANT>.<AUTH0_REGION>.auth0.com/api/v2/`, unless the route is intentionally calling Auth0 management APIs. Tawny Port Cellar routes should use the custom Tawny Port API audience you created for this application.
+
 Use this authorizer configuration later in API Gateway:
 
 | API Gateway authorizer field | Value |
@@ -276,10 +283,10 @@ export AUTH0_CLIENT_SECRET="<AUTH0_M2M_CLIENT_SECRET>"
 export AUTH0_AUDIENCE="<AUTH0_AUDIENCE>"
 ```
 
-Request an Auth0 access token:
+Request an Auth0 access token and keep the full response temporarily:
 
 ```bash
-curl --request POST \
+export AUTH0_TOKEN_RESPONSE=$(curl -s --request POST \
   --url "$AUTH0_DOMAIN/oauth/token" \
   --header 'content-type: application/json' \
   --data '{
@@ -287,7 +294,7 @@ curl --request POST \
     "client_secret":"'"$AUTH0_CLIENT_SECRET"'",
     "audience":"'"$AUTH0_AUDIENCE"'",
     "grant_type":"client_credentials"
-}'
+}')
 ```
 
 If you are testing without shell variables, use the direct placeholder form:
@@ -306,13 +313,25 @@ curl --request POST \
 
 The response includes `access_token`, `scope`, `expires_in`, and `token_type`.
 
-Export the token for reuse:
+Inspect the response without printing the token:
+
+```bash
+echo "$AUTH0_TOKEN_RESPONSE" | jq '{token_type, expires_in, scope}'
+```
+
+Export only the raw JWT for reuse:
+
+```bash
+export AUTH0_TOKEN=$(echo "$AUTH0_TOKEN_RESPONSE" | jq -r '.access_token')
+```
+
+If you are pasting manually instead, use:
 
 ```bash
 export AUTH0_TOKEN="PASTE_TOKEN_HERE"
 ```
 
-For repeatable CLI testing, extract the token directly with `jq`:
+For one-command refresh during local testing, request and extract the token in one step:
 
 ```bash
 export AUTH0_TOKEN=$(curl -s --request POST \
@@ -339,6 +358,36 @@ eyJ...
 > [!WARNING]
 > A common failure is storing the full JSON response, such as `{"access_token":"..."}`, instead of the raw JWT. API Gateway then reports token parsing errors such as `invalid_token` or base64 decode failures. Use `jq -r '.access_token'` to extract only the token.
 
+Inspect the JWT payload when issuer or audience behavior is unclear:
+
+```bash
+python3 - <<'PY'
+import base64
+import json
+import os
+
+token = os.environ["AUTH0_TOKEN"]
+payload = token.split(".")[1]
+payload += "=" * (-len(payload) % 4)
+claims = json.loads(base64.urlsafe_b64decode(payload))
+print(json.dumps({
+    "iss": claims.get("iss"),
+    "aud": claims.get("aud"),
+    "gty": claims.get("gty"),
+    "azp": claims.get("azp"),
+    "scope": claims.get("scope"),
+    "exp": claims.get("exp"),
+}, indent=2))
+PY
+```
+
+Confirm:
+
+- `iss` matches the Auth0 issuer configured in API Gateway.
+- `aud` matches the custom Tawny Port API audience.
+- `gty` is `client-credentials`.
+- `azp` matches the M2M application client ID.
+
 Test the protected Python Cellar route with the bearer token:
 
 ```bash
@@ -358,6 +407,7 @@ Expected result:
 - API Gateway accepts the bearer token.
 - The Cellar Lambda returns a successful response.
 - CloudWatch logs show the Cellar Lambda invocation.
+- The `name=AuthTester` query string appears in the Cellar Lambda event.
 
 Test the protected route without a token:
 
@@ -376,9 +426,11 @@ Common Auth0 validation failures:
 | --- | --- | --- |
 | Missing token | `Authorization` header is absent or empty | Send `Authorization: Bearer $AUTH0_TOKEN` |
 | Invalid audience | Auth0 API identifier does not match the authorizer audience | Set `AUTH0_AUDIENCE` to the API identifier used by the API Gateway authorizer |
+| Management API audience | Token `aud` is `https://<AUTH0_DOMAIN>/api/v2/` instead of the Tawny Port API audience | Request the token with the custom Tawny Port API identifier |
 | Wrong issuer | Auth0 domain or trailing slash differs from the authorizer issuer | Match `https://<AUTH0_TENANT>.<AUTH0_REGION>.auth0.com/` exactly |
 | Expired token | `exp` is older than the current time | Request a fresh token and re-export `AUTH0_TOKEN` |
 | Incorrect scopes | API requires scopes that the M2M app was not granted | Authorize the M2M app for the API scopes, then request a new token |
+| Full JSON exported | `AUTH0_TOKEN` contains the whole token response instead of the JWT | Re-export with `jq -r '.access_token'` |
 
 ### Auth0 Security Notes
 
@@ -531,6 +583,9 @@ The deployed path uses Cognito Hosted UI plus the authorization-code callback. T
 | `USER_PASSWORD_AUTH` | Direct username/password authentication | CLI labs, backend tests, transparent troubleshooting |
 
 `SECRET_HASH` is a derived HMAC proof made from username, app client ID, and client secret. Cognito uses it so clients do not send the raw app client secret as a request parameter.
+
+> [!NOTE]
+> For the barebones CLI version of this learning path, use the companion [Cognito CLI Auth Flow runbook](../../../cognito-cli-auth-flow/README.md). Tawny Port uses Hosted UI in the deployed app, while the companion lab isolates the command-line mechanics behind `USER_AUTH`, `SELECT_CHALLENGE`, MFA, and JWT testing.
 
 Direct-auth documentation:
 
@@ -739,7 +794,46 @@ Replace per deployment:
 
 Use API Gateway HTTP API for the route layer. It fits this project well because the routes are simple Lambda proxy integrations, and the Cellar routes can use a built-in JWT authorizer.
 
-### 7.1 Stage
+### 7.1 Create The HTTP API
+
+Create the API Gateway container before adding routes, integrations, or authorizers.
+
+1. Open **AWS Console**.
+2. Go to **API Gateway**.
+3. Choose **Create API**.
+4. Under **HTTP API**, choose **Build**.
+5. Configure the API:
+
+| Field | Value |
+| --- | --- |
+| API name | `tawny-port-https` |
+| Protocol | HTTP |
+| Integration | Skip during initial API creation, or add Lambda integrations later route-by-route |
+| CORS | Do not enable unless you are intentionally calling the API from a separate browser origin |
+
+6. Create or confirm the stage:
+
+| Field | Value |
+| --- | --- |
+| Stage name | `prod` |
+| Auto-deploy | Enabled |
+
+7. Choose **Create**.
+
+After creation, record the generated values:
+
+| Generated value | Pattern |
+| --- | --- |
+| API ID | `<API_ID>` |
+| Invoke URL | `https://<API_ID>.execute-api.<AWS_REGION>.amazonaws.com/prod` |
+| API host | `<API_ID>.execute-api.<AWS_REGION>.amazonaws.com` |
+
+Use those values later in Cognito callback URLs, Lambda environment variables, cookie domains, and route tests.
+
+> [!IMPORTANT]
+> The API name is stable: `tawny-port-https`. The generated API ID and invoke URL are deployment-specific and must be replaced for each new build.
+
+### 7.2 Stage
 
 | Field | Value |
 | --- | --- |
@@ -749,7 +843,7 @@ Use API Gateway HTTP API for the route layer. It fits this project well because 
 > [!IMPORTANT]
 > Route keys do not include `/prod`. The stage appears in the invoke URL only.
 
-### 7.2 Routes And Integrations
+### 7.3 Routes And Integrations
 
 | Route key | Method | Lambda integration | Auth |
 | --- | --- | --- | --- |
@@ -761,7 +855,7 @@ Use API Gateway HTTP API for the route layer. It fits this project well because 
 | `/chalice/python-sipper` | GET | `python-sipper` | None at API Gateway; Lambda validates session |
 | `/chalice/node-sipper` | GET | `node-sipper` | None at API Gateway; Lambda validates session |
 
-### 7.2.1 Method Guidance
+### 7.3.1 Method Guidance
 
 Use `GET` for the current routes:
 
@@ -773,7 +867,7 @@ Use `GET` for the current routes:
 
 Avoid `ANY` until the route truly needs multiple methods. Keeping methods explicit makes API Gateway authorization and troubleshooting clearer.
 
-### 7.2.2 JWT Authorizer Rules
+### 7.3.2 JWT Authorizer Rules
 
 For Cellar routes, issuer and audience must exactly match the token claims.
 
@@ -792,7 +886,7 @@ Reference links:
 - [API Gateway HTTP API JWT authorizers](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-jwt-authorizer.html)
 - [API Gateway HTTP API Lambda authorizers](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-lambda-authorizer.html)
 
-### 7.3 Lambda Invoke Permission Pattern
+### 7.4 Lambda Invoke Permission Pattern
 
 API Gateway usually adds invoke permissions automatically when integrations are created in the console. If you need to verify manually, use this source ARN pattern:
 
@@ -1000,6 +1094,7 @@ Master lessons from the original documentation:
 | Cognito branding | [Apply branding to managed login pages](https://docs.aws.amazon.com/cognito/latest/developerguide/managed-login-branding.html) |
 | Cognito logout | [Logout endpoint](https://docs.aws.amazon.com/cognito/latest/developerguide/logout-endpoint.html) |
 | Cognito direct auth | [Authentication](https://docs.aws.amazon.com/cognito/latest/developerguide/authentication.html), [Authentication flow methods](https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-authentication-flow-methods.html), [InitiateAuth API](https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_InitiateAuth.html), [CLI initiate-auth](https://docs.aws.amazon.com/cli/latest/reference/cognito-idp/initiate-auth.html), [CLI respond-to-auth-challenge](https://docs.aws.amazon.com/cli/latest/reference/cognito-idp/respond-to-auth-challenge.html), [MFA](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-mfa.html) |
+| Cognito CLI lab | [Cognito CLI Auth Flow companion runbook](../../../cognito-cli-auth-flow/README.md) |
 | Secret hash and cryptography | [Computing secret hash values](https://docs.aws.amazon.com/cognito/latest/developerguide/signing-up-users-in-your-app.html#cognito-user-pools-computing-secret-hash), [AWS re:Post secret hash troubleshooting](https://repost.aws/knowledge-center/cognito-unable-to-verify-secret-hash), [Python hmac](https://docs.python.org/3/library/hmac.html), [Python hashlib](https://docs.python.org/3/library/hashlib.html), [Python base64](https://docs.python.org/3/library/base64.html), [JWT introduction](https://jwt.io/introduction) |
 | Auth0 M2M | [Auth0 Client Credentials Flow](https://auth0.com/docs/get-started/authentication-and-authorization-flow/client-credentials-flow), [Auth0 APIs](https://auth0.com/docs/get-started/apis) |
 | CLI parsing | [jq Manual](https://jqlang.github.io/jq/manual/) |
@@ -1008,6 +1103,8 @@ Master lessons from the original documentation:
 
 - [ ] `tawny-port-sessions` DynamoDB table exists with `sessionId` partition key.
 - [ ] TTL is enabled on `expiresAt`.
+- [ ] API Gateway HTTP API is named `tawny-port-https`.
+- [ ] API Gateway HTTP API has a `prod` stage with the expected invoke URL.
 - [ ] `tawny-port-sippers` user pool exists.
 - [ ] `port-connoisseur` app client uses Authorization code grant.
 - [ ] Cognito callback URL points to `/prod/table/auth/callback`.
