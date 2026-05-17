@@ -1,6 +1,6 @@
-# Tawny Port API Gateway, Lambda, Cognito, Auth0, and DynamoDB Runbook
+# Tawny Port Infrastructure
 
-Build Tawny Port as a serverless AWS infrastructure demo with API Gateway, Lambda, Cognito Hosted UI, Auth0 M2M auth, and DynamoDB-backed sessions.
+**Purpose: Build Tawny Port, a serverless AWS infrastructure demo with API Gateway (HTTPS), Lambda, Cognito Hosted UI, Auth0 M2M auth, and DynamoDB-backed sessions.**
 
 The route model keeps identity boundaries clear: Auth0 protects internal Cellar access, Cognito handles browser sign-in, Lambda owns each route handler, and DynamoDB stores short-lived application sessions.
 
