@@ -106,7 +106,7 @@ From the Cellar, to the Table, through the Sommelier, into the Chalice.
 
 ## Sanitized Deployment Values
 
-Start with these values before opening the AWS Console. The project names and route structure stay consistent; the identifiers come from your AWS and Auth0 deployment.
+Start with these values before opening the AWS Console. The project names and route structure stay consistent. The identifiers come from your AWS and Auth0 deployment.
 
 | Value | Tawny Port pattern | Replace for each deployment? |
 | --- | --- | --- |
@@ -178,6 +178,16 @@ Create the session table first. Lambda environment variables and IAM policies re
 > [!IMPORTANT]
 > Use `sessionId` exactly as the partition key. The callback, sipper, and logout Lambdas all read or write sessions by that key.
 
+> [!IMPORTANT]
+> Keep these values handy for Lambda environment variables, IAM policies, and session validation:
+
+| Parameter | Console Location | Value |
+| --- | --- | --- |
+| Table name | DynamoDB table details | `tawny-port-sessions` |
+| Partition key | Table schema | `sessionId` |
+| TTL attribute | Table TTL settings | `expiresAt` |
+| Table ARN | DynamoDB table details | `arn:aws:dynamodb:<AWS_REGION>:<AWS_ACCOUNT_ID>:table/tawny-port-sessions` |
+
 Session item shape:
 
 ```json
@@ -235,6 +245,16 @@ Use Auth0 only for Cellar. These routes are for developer and service access, so
 | API audience | `<AUTH0_AUDIENCE>` |
 | Signing algorithm | `RS256` |
 | M2M app purpose | Cellar developer/API access |
+
+> [!IMPORTANT]
+> Keep these values handy for Auth0 token requests and Cellar authorizer configuration:
+
+| Parameter | Console Location | Value |
+| --- | --- | --- |
+| Auth0 issuer | Auth0 application or tenant settings | `https://<AUTH0_TENANT>.<AUTH0_REGION>.auth0.com/` |
+| Auth0 API audience | Auth0 API identifier | `<AUTH0_AUDIENCE>` |
+| M2M client ID | Auth0 machine-to-machine application settings | `<AUTH0_M2M_CLIENT_ID>` |
+| M2M client secret | Auth0 machine-to-machine application settings | `<AUTH0_M2M_CLIENT_SECRET>` |
 
 Treat the Auth0 API identifier as the trust anchor for Cellar. The M2M application requests a token for that exact audience, and API Gateway validates the same audience before allowing `/cellar/*` traffic through.
 
@@ -472,6 +492,15 @@ That code must be exchanged server-side before the user enters the Chalice exper
 | Self registration | Enabled |
 | Required attributes | `birthday`, `email` |
 
+> [!IMPORTANT]
+> Keep these values handy for Cognito Hosted UI URLs, Lambda environment variables, and API Gateway authorizers:
+
+| Parameter | Console Location | Value |
+| --- | --- | --- |
+| User pool name | Cognito user pool details | `tawny-port-sippers` |
+| User pool ID | Cognito user pool details | `<COGNITO_USER_POOL_ID>` |
+| AWS region | AWS Console region selector | `<AWS_REGION>` |
+
 ### 3.2 Create Or Confirm App Client
 
 1. In the user pool, go to **App integration**.
@@ -485,6 +514,17 @@ That code must be exchanged server-side before the user enters the Chalice exper
 | Client secret | Generated and stored only in Lambda configuration or Secrets Manager |
 | OAuth grant | Authorization code grant |
 | Scopes | `openid`, `email`, `phone` |
+
+> [!IMPORTANT]
+> Keep these values handy for Sommelier login URLs, callback token exchange, and Lambda environment variables:
+
+| Parameter | Console Location | Value |
+| --- | --- | --- |
+| App client name | Cognito app client details | `port-connoisseur` |
+| Client ID | Cognito app client details | `<COGNITO_APP_CLIENT_ID>` |
+| Client secret | Cognito app client details, show client secret | `<COGNITO_CLIENT_SECRET>` |
+| OAuth grant | App client managed login settings | Authorization code grant |
+| Scopes | App client managed login settings | `openid`, `email`, `phone` |
 
 Use these sanitized URL patterns:
 
@@ -509,6 +549,15 @@ The Sommelier Lambda builds Cognito login URLs with this domain:
 ```text
 https://<COGNITO_DOMAIN>/login?client_id=<COGNITO_APP_CLIENT_ID>&response_type=code&scope=openid+email+phone&redirect_uri=<CALLBACK_REDIRECT_URI>&state=<TARGET>
 ```
+
+> [!IMPORTANT]
+> Keep these values handy for `sommelier`, `auth-callback`, and `cognito-logout` environment variables:
+
+| Parameter | Console Location | Value |
+| --- | --- | --- |
+| Domain prefix | Cognito domain settings | `<COGNITO_DOMAIN_PREFIX>` |
+| Hosted UI domain | Cognito domain settings | `<COGNITO_DOMAIN_PREFIX>.auth.<AWS_REGION>.amazoncognito.com` |
+| Hosted UI login base | Cognito managed login URL | `https://<COGNITO_DOMAIN_PREFIX>.auth.<AWS_REGION>.amazoncognito.com/login` |
 
 ### 3.4 Callback Flow Rationale
 
@@ -641,10 +690,23 @@ Reference links:
 
 ## 5. Configure Lambda Environment Variables
 
-Set these values after each Lambda is created. Keep secrets out of source files; the console configuration or a managed secret store should own deployment-specific values.
+Set these values after each Lambda is created. Keep secrets out of source files. Console configuration or a managed secret store should own deployment-specific values.
 
 > [!IMPORTANT]
 > Use the same `<API_ID>`, `<AWS_REGION>`, and `prod` stage consistently across Cognito URLs, Lambda environment variables, and API Gateway route tests.
+
+> [!IMPORTANT]
+> Keep these values handy before filling Lambda environment variables:
+
+| Parameter | Console Location | Value |
+| --- | --- | --- |
+| API ID | API Gateway HTTP API details | `<API_ID>` |
+| API base URL | API Gateway stage details | `https://<API_ID>.execute-api.<AWS_REGION>.amazonaws.com/prod` |
+| API host | Derived from API invoke URL | `<API_ID>.execute-api.<AWS_REGION>.amazonaws.com` |
+| Cognito client ID | Cognito app client details | `<COGNITO_APP_CLIENT_ID>` |
+| Cognito client secret | Cognito app client details, show client secret | `<COGNITO_CLIENT_SECRET>` |
+| Cognito Hosted UI domain | Cognito domain settings | `<COGNITO_DOMAIN_PREFIX>.auth.<AWS_REGION>.amazoncognito.com` |
+| Session table | DynamoDB table details | `tawny-port-sessions` |
 
 ### `sommelier`
 
@@ -701,6 +763,16 @@ Every Lambda execution role needs CloudWatch Logs permissions. Only session-awar
 
 > [!TIP]
 > Start with one execution role per Lambda. It makes least-privilege permissions easier to audit because each function only receives the DynamoDB actions it actually uses.
+
+> [!IMPORTANT]
+> Keep these values handy for CloudWatch Logs ARNs, DynamoDB policy resources, and Lambda execution role review:
+
+| Parameter | Console Location | Value |
+| --- | --- | --- |
+| AWS account ID | AWS account menu or IAM ARN details | `<AWS_ACCOUNT_ID>` |
+| AWS region | AWS Console region selector | `<AWS_REGION>` |
+| Session table ARN | DynamoDB table details | `arn:aws:dynamodb:<AWS_REGION>:<AWS_ACCOUNT_ID>:table/tawny-port-sessions` |
+| Lambda log group pattern | CloudWatch Logs | `/aws/lambda/<FUNCTION_NAME>` |
 
 ### 6.1 CloudWatch Logs
 
@@ -822,11 +894,16 @@ Create the API Gateway container before adding routes, integrations, or authoriz
 
 After creation, record the generated values:
 
-| Generated value | Pattern |
-| --- | --- |
-| API ID | `<API_ID>` |
-| Invoke URL | `https://<API_ID>.execute-api.<AWS_REGION>.amazonaws.com/prod` |
-| API host | `<API_ID>.execute-api.<AWS_REGION>.amazonaws.com` |
+> [!IMPORTANT]
+> Keep these values handy for Cognito redirect URLs, Lambda environment variables, cookie domains, and route tests:
+
+| Parameter | Console Location | Value |
+| --- | --- | --- |
+| API name | API Gateway HTTP API details | `tawny-port-https` |
+| API ID | API Gateway HTTP API details | `<API_ID>` |
+| Stage | API Gateway stage details | `prod` |
+| Invoke URL | API Gateway stage details | `https://<API_ID>.execute-api.<AWS_REGION>.amazonaws.com/prod` |
+| API host | Derived from invoke URL | `<API_ID>.execute-api.<AWS_REGION>.amazonaws.com` |
 
 Use those values later in Cognito callback URLs, Lambda environment variables, cookie domains, and route tests.
 
@@ -876,6 +953,16 @@ For Cellar routes, issuer and audience must exactly match the token claims.
 | Identity source | `$request.header.Authorization` |
 | Issuer | `https://<AUTH0_TENANT>.<AUTH0_REGION>.auth0.com/` |
 | Audience | `<AUTH0_AUDIENCE>` |
+
+> [!IMPORTANT]
+> Keep these values handy for Cellar route authorization:
+
+| Parameter | Console Location | Value |
+| --- | --- | --- |
+| Authorizer name | API Gateway authorizer details | `tawny-port-auth0-jwt` |
+| Identity source | API Gateway authorizer details | `$request.header.Authorization` |
+| Issuer | Auth0 tenant/application settings | `https://<AUTH0_TENANT>.<AUTH0_REGION>.auth0.com/` |
+| Audience | Auth0 API identifier | `<AUTH0_AUDIENCE>` |
 
 > [!WARNING]
 > Most JWT authorizer failures in this project came from issuer, audience, parsing, or route binding mistakes. If `/cellar/*` fails, inspect the JWT `iss` and `aud` claims before changing Lambda code.

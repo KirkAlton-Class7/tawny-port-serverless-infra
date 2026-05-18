@@ -10,7 +10,7 @@ The project line still carries the architecture:
 From the Cellar, to the Table, through the Sommelier, into the Chalice.
 ```
 
-That sentence is not just branding. It is the request map.
+That sentence is the request map.
 
 ```text
 Cellar  -> internal API access with Auth0 M2M
@@ -32,14 +32,14 @@ Chalice -> authenticated user experience after local session creation
 
 | Source | Role |
 | --- | --- |
-| `/Users/kirk/Codex/sandbox/tawny-port-serverless-infra` | Main Tawny Port repository |
+| `<TAWNY_PORT_REPO_ROOT>` | Main Tawny Port repository |
 | `README.md` | Project quickstart and implementation split |
 | `HTTPS/docs/tawny-port-https-runbook.md` | HTTP API implementation runbook |
 | `REST/docs/tawny-port-rest-runbook.md` | REST API implementation runbook |
 | `HTTPS/project-assets/lambda-code/` | HTTP API Lambda source |
 | `REST/project-assets/lambda-code/` | REST API Lambda source and Auth0 authorizer package |
 | `shared/tawny-port-brand/brand-identity.md` | Cognito managed login brand identity |
-| `/Users/kirk/Codex/sandbox/cognito-cli-auth-flow` | Companion Cognito CLI identity lab |
+| `<COGNITO_CLI_AUTH_FLOW_REPO_ROOT>` | Companion Cognito CLI identity lab |
 
 ## Resource Links
 
@@ -116,7 +116,7 @@ Resource links for this section: [Cognito authentication](https://docs.aws.amazo
 
 ## Route Taxonomy
 
-The route names carry meaning. The stage is the environment; the next path segment is the trust boundary.
+The route names carry meaning. The stage is the environment. The next path segment is the trust boundary.
 
 ```text
 /<stage>/<domain>/<service>
@@ -485,7 +485,7 @@ Callback creates DynamoDB session
 ## Strategic Takeaways
 
 - Route names can encode trust boundaries.
-- Auth0 and Cognito are not interchangeable in this project; they solve different identity problems.
+- Auth0 and Cognito solve different identity problems in this project.
 - Cognito Hosted UI is safer for browser login than custom password handling.
 - The authorization code must be exchanged by a confidential backend component.
 - A short-lived DynamoDB session table lets the app avoid exposing Cognito tokens to route handlers.
@@ -495,10 +495,10 @@ Callback creates DynamoDB session
 
 ## Study References
 
-- [Tawny Port root README](/Users/kirk/Codex/sandbox/tawny-port-serverless-infra/README.md)
-- [Tawny Port HTTPS runbook](/Users/kirk/Codex/sandbox/tawny-port-serverless-infra/HTTPS/docs/tawny-port-https-runbook.md)
-- [Tawny Port REST runbook](/Users/kirk/Codex/sandbox/tawny-port-serverless-infra/REST/docs/tawny-port-rest-runbook.md)
-- [Tawny Port brand identity](/Users/kirk/Codex/sandbox/tawny-port-serverless-infra/shared/tawny-port-brand/brand-identity.md)
+- [Tawny Port root README](README.md)
+- [Tawny Port HTTPS runbook](HTTPS/docs/tawny-port-https-runbook.md)
+- [Tawny Port REST runbook](REST/docs/tawny-port-rest-runbook.md)
+- [Tawny Port brand identity](shared/tawny-port-brand/brand-identity.md)
 - [[class7_advanced/cognito-cli-auth-flow-class-note]]
 - [AWS API Gateway HTTP APIs](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api.html)
 - [AWS API Gateway REST APIs](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-rest-api.html)
