@@ -1,7 +1,7 @@
-# Tawny Port API - REST Version
+# Tawny Port API - REST Deployment
 
 REST implementation of the Tawny Port serverless infrastructure demo.<br>
-View the HTTPS version [here](../HTTPS/README.md) ifyou prefer that implementation.<br><br>
+View the HTTPS deployment [here](../HTTPS/README.md) if you prefer that deployment.<br><br>
 
 Tawny Port separates browser login from internal API access so each route family has the right trust boundary:
 
@@ -21,26 +21,28 @@ From the Cellar, to the Table, through the Sommelier, into the Chalice.
 | Document | Use |
 | --- | --- |
 | [Architecture](docs/architecture.md) | Request flow, route boundaries, and REST-specific implementation notes |
-| [Full Runbook](docs/tawny-port-rest-runbook.md) | Console implementation guide from AWS setup through validation |
+| [Runbook - CLI](docs/RUNBOOK-CLI.md) | Build and validate the REST deployment primarily with AWS CLI commands |
+| [Runbook - Console](docs/RUNBOOK-CONSOLE.md) | Build the REST deployment primarily in the AWS Console with CLI validation |
+| [env.example](env.example) | Dotenv template for deployment values and resource outputs |
 | [Lambda Packaging](project-assets/lambda-code/README.md) | Upload and package Lambda code, including the Auth0 authorizer ZIP |
 | [Shared Brand Identity](../shared/tawny-port-brand/brand-identity.md) | Cognito Managed Login color and type reference |
-| [HTTPS Version](../HTTPS/README.md) | Companion HTTP API implementation |
+| [HTTPS Deployment](../HTTPS/README.md) | Companion HTTP API deployment |
 
 ## Project Assets
 
-Console deployment source files for this implementation are kept under `REST/project-assets/`.
+Deployment source files for this implementation are kept under `REST/project-assets/`.
 
 | Path | Purpose |
 | --- | --- |
 | [project-assets/lambda-code](project-assets/lambda-code/) | Lambda source files for the REST API implementation |
 | [project-assets/lambda-code/README.md](project-assets/lambda-code/README.md) | Lambda upload and packaging guide |
-| [project-assets/lambda-code/auth0-jwt-authorizer.zip](project-assets/lambda-code/auth0-jwt-authorizer.zip) | Packaged Auth0 Lambda TOKEN authorizer |
+| [project-assets/lambda-code/auth0-jwt-authorizer.py](project-assets/lambda-code/auth0-jwt-authorizer.py) | Auth0 Lambda TOKEN authorizer source |
 | [project-assets/lambda-code/requirements-auth0-jwt-authorizer.txt](project-assets/lambda-code/requirements-auth0-jwt-authorizer.txt) | Python dependency manifest for the Auth0 authorizer |
 | [../shared/tawny-port-brand](../shared/tawny-port-brand/) | Shared Cognito Managed Login branding assets |
 
-## Architecture Summary
+## Deployment Components
 
-The REST version uses API Gateway **REST API** resources and methods with Lambda proxy integrations. Auth0-protected Cellar routes use a Lambda TOKEN authorizer because REST APIs do not use HTTP API JWT authorizers.
+The REST deployment uses API Gateway **REST API** resources and methods with Lambda proxy integrations. Auth0-protected Cellar routes use a Lambda TOKEN authorizer because REST APIs do not use HTTP API JWT authorizers.
 
 | API Gateway field | Value |
 | --- | --- |
@@ -96,12 +98,4 @@ Implementation details:
 
 ## Get Started
 
-Use the [Tawny Port - REST Runbook](docs/tawny-port-rest-runbook.md) to get started with:
-
-* DynamoDB session table setup
-* Auth0 machine-to-machine configuration
-* Cognito Hosted UI and app client setup
-* Lambda creation, handlers, permissions, and environment variables
-* API Gateway REST API named `tawny-port-rest`
-* API Gateway REST API resources, methods, integrations, and authorizers
-* Testing, troubleshooting, and official reference links
+Use either REST runbook in `docs/` to build the deployment. The CLI runbook uses `env.example` copied to `.env` for planned values and resource outputs. The Console runbook keeps the same deployment flow in ClickOps form.

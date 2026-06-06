@@ -34,8 +34,10 @@ Chalice -> authenticated user experience after local session creation
 | --- | --- |
 | `<TAWNY_PORT_REPO_ROOT>` | Main Tawny Port repository |
 | `README.md` | Project quickstart and implementation split |
-| `HTTPS/docs/tawny-port-https-runbook.md` | HTTP API implementation runbook |
-| `REST/docs/tawny-port-rest-runbook.md` | REST API implementation runbook |
+| `HTTPS/docs/RUNBOOK-CLI.md` | HTTP API CLI deployment runbook |
+| `HTTPS/docs/RUNBOOK-CONSOLE.md` | HTTP API Console deployment runbook |
+| `REST/docs/RUNBOOK-CLI.md` | REST API CLI deployment runbook |
+| `REST/docs/RUNBOOK-CONSOLE.md` | REST API Console deployment runbook |
 | `HTTPS/project-assets/lambda-code/` | HTTP API Lambda source |
 | `REST/project-assets/lambda-code/` | REST API Lambda source and Auth0 authorizer package |
 | `shared/tawny-port-brand/brand-identity.md` | Cognito managed login brand identity |
@@ -205,14 +207,15 @@ If callback fails, check Cognito URL values and Lambda environment variables.
 If Chalice fails after login, check cookies, DynamoDB, and Lambda IAM.
 ```
 
-## HTTP API Version
+## HTTP API Deployment
 
 The HTTPS implementation uses API Gateway HTTP API.
 
 | Area | Pattern |
 | --- | --- |
 | Folder | `HTTPS/` |
-| Runbook | `HTTPS/docs/tawny-port-https-runbook.md` |
+| CLI runbook | `HTTPS/docs/RUNBOOK-CLI.md` |
+| Console runbook | `HTTPS/docs/RUNBOOK-CONSOLE.md` |
 | API Gateway name | `tawny-port-https` |
 | API Gateway type | HTTP API |
 | Cellar auth | Built-in JWT authorizer |
@@ -234,14 +237,15 @@ Create API Gateway HTTP API first
 
 Resource links for this section: [HTTP APIs](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api.html), [HTTP API JWT authorizers](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-jwt-authorizer.html), and [HTTP API Lambda proxy integrations](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html).
 
-## REST API Version
+## REST API Deployment
 
 The REST implementation uses API Gateway REST API.
 
 | Area | Pattern |
 | --- | --- |
 | Folder | `REST/` |
-| Runbook | `REST/docs/tawny-port-rest-runbook.md` |
+| CLI runbook | `REST/docs/RUNBOOK-CLI.md` |
+| Console runbook | `REST/docs/RUNBOOK-CONSOLE.md` |
 | API Gateway name | `tawny-port-rest` |
 | API Gateway type | REST API |
 | Cellar auth | Lambda TOKEN authorizer named `tawny-port-auth0-jwt` |
@@ -496,8 +500,10 @@ Callback creates DynamoDB session
 ## Study References
 
 - [Tawny Port root README](README.md)
-- [Tawny Port HTTPS runbook](HTTPS/docs/tawny-port-https-runbook.md)
-- [Tawny Port REST runbook](REST/docs/tawny-port-rest-runbook.md)
+- [Tawny Port HTTPS CLI runbook](HTTPS/docs/RUNBOOK-CLI.md)
+- [Tawny Port HTTPS Console runbook](HTTPS/docs/RUNBOOK-CONSOLE.md)
+- [Tawny Port REST CLI runbook](REST/docs/RUNBOOK-CLI.md)
+- [Tawny Port REST Console runbook](REST/docs/RUNBOOK-CONSOLE.md)
 - [Tawny Port brand identity](shared/tawny-port-brand/brand-identity.md)
 - [[class7_advanced/cognito-cli-auth-flow-class-note]]
 - [AWS API Gateway HTTP APIs](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api.html)

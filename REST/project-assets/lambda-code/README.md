@@ -89,3 +89,13 @@ Click **Deploy** if prompted.
 | `No module named 'jwt'` | PyJWT was not packaged or layered | Upload the ZIP package or attach a layer with `PyJWT[crypto]` |
 | `cryptography` import error | Package was built for an incompatible platform | Rebuild on Amazon Linux or use a compatible Lambda layer |
 | `Unable to import module` | Handler file name does not match Lambda handler setting | Use `lambda_function.py` with `lambda_function.lambda_handler` |
+
+## CLI Command References
+
+### General CLI References
+
+| Command | Reference |
+| --- | --- |
+| `python3 -m pip` | [pip user guide](https://pip.pypa.io/en/stable/user_guide/) |
+| `zip` | [Info-ZIP manual](https://infozip.sourceforge.net/Zip.html) |
+

@@ -95,9 +95,11 @@ Font family is not specified in the Cognito branding source. Use Cognito Managed
 
 ## Reference
 
-Use the implementation runbook that matches the API Gateway version you are building:
+Use the deployment runbook that matches the API Gateway deployment you are building:
 
-| Implementation | Runbook |
+| Deployment | Runbook |
 | --- | --- |
-| HTTPS Version | [`HTTPS/docs/tawny-port-https-runbook.md`](../../HTTPS/docs/tawny-port-https-runbook.md) |
-| REST Version | [`REST/docs/tawny-port-rest-runbook.md`](../../REST/docs/tawny-port-rest-runbook.md) |
+| HTTPS CLI | [`HTTPS/docs/RUNBOOK-CLI.md`](../../HTTPS/docs/RUNBOOK-CLI.md) |
+| HTTPS Console | [`HTTPS/docs/RUNBOOK-CONSOLE.md`](../../HTTPS/docs/RUNBOOK-CONSOLE.md) |
+| REST CLI | [`REST/docs/RUNBOOK-CLI.md`](../../REST/docs/RUNBOOK-CLI.md) |
+| REST Console | [`REST/docs/RUNBOOK-CONSOLE.md`](../../REST/docs/RUNBOOK-CONSOLE.md) |

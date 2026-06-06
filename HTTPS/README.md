@@ -1,7 +1,7 @@
-# Tawny Port API - HTTPS Version
+# Tawny Port API - HTTPS Deployment
 
 HTTP API implementation of the Tawny Port serverless infrastructure demo.<br>
-View the REST version [here](../REST/README.md) if you prefer that implementation.<br><br>
+View the REST deployment [here](../REST/README.md) if you prefer that deployment.<br><br>
 
 Tawny Port separates browser login from internal API access so each route family has the right trust boundary:
 
@@ -21,22 +21,24 @@ From the Cellar, to the Table, through the Sommelier, into the Chalice.
 | Document | Use |
 | --- | --- |
 | [Architecture](docs/architecture.md) | Request flow, route boundaries, and implementation notes |
-| [Full Runbook](docs/tawny-port-https-runbook.md) | Console implementation guide from AWS setup through validation |
+| [Runbook - CLI](docs/RUNBOOK-CLI.md) | Build and validate the HTTP API deployment primarily with AWS CLI commands |
+| [Runbook - Console](docs/RUNBOOK-CONSOLE.md) | Build the HTTP API deployment primarily in the AWS Console with CLI validation |
+| [env.example](env.example) | Dotenv template for deployment values and resource outputs |
 | [Shared Brand Identity](../shared/tawny-port-brand/brand-identity.md) | Cognito Managed Login color and type reference |
-| [REST Version](../REST/README.md) | Companion REST API implementation |
+| [REST Deployment](../REST/README.md) | Companion REST API deployment |
 
 ## Project Assets
 
-Console deployment source files for this implementation are kept under `HTTPS/project-assets/`.
+Deployment source files for this implementation are kept under `HTTPS/project-assets/`.
 
 | Path | Purpose |
 | --- | --- |
 | [project-assets/lambda-code](project-assets/lambda-code/) | Lambda source files for the HTTP API implementation |
 | [../shared/tawny-port-brand](../shared/tawny-port-brand/) | Shared Cognito Managed Login branding assets |
 
-## Architecture Summary
+## Deployment Components
 
-The HTTPS version uses API Gateway **HTTP API** routes with Lambda integrations and a built-in JWT authorizer for Auth0-protected Cellar routes.
+The HTTPS deployment uses API Gateway **HTTP API** routes with Lambda integrations and a built-in JWT authorizer for Auth0-protected Cellar routes.
 
 | API Gateway field | Value |
 | --- | --- |
@@ -91,12 +93,4 @@ Implementation details:
 
 ## Get Started
 
-Use the [Tawny Port - HTTPS Runbook](docs/tawny-port-https-runbook.md) to get started with:
-
-* DynamoDB session table setup
-* Auth0 machine-to-machine configuration
-* Cognito Hosted UI and app client setup
-* Lambda creation, handlers, permissions, and environment variables
-* API Gateway HTTP API named `tawny-port-https`
-* API Gateway HTTP API routes, integrations, and authorizers
-* Testing, troubleshooting, and official reference links
+Use either HTTPS runbook in `docs/` to build the deployment. The CLI runbook uses `env.example` copied to `.env` for planned values and resource outputs. The Console runbook keeps the same deployment flow in ClickOps form.
